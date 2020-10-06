@@ -17,7 +17,7 @@ clean:
 	rm -rf build
 
 install:
-	install --mode=644 --preserve-timestamps ./build/lib/ada-canberra.so ~/.weechat/plugins/
+	install --mode=644 --preserve-timestamps --strip ./build/lib/ada-canberra.so ~/.weechat/plugins/
 
 uninstall:
 	rm ~/.weechat/plugins/ada-canberra.so

@@ -1,5 +1,6 @@
 with "canberra";
 with "weechat";
+
 with "config";
 
 library project Weechat_Canberra is
@@ -18,8 +19,9 @@ library project Weechat_Canberra is
    for Library_Kind use "relocatable";
 
    --  Stand-alone library
-   for Library_Interface use ("plugin");
+   for Library_Interface use ("plugin_canberra");
    for Library_Options use ("-lcanberra");
+   for Library_Standalone use "encapsulated";  --  Make sure to build canberra-ada as static-pic
 
    package Ide renames Config.Ide;
    package Builder renames Config.Builder;

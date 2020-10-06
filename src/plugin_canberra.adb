@@ -14,6 +14,8 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
+with System;
+
 with Interfaces.C.Strings;
 
 with Ada.Calendar.Formatting;
@@ -24,7 +26,7 @@ with Canberra;
 
 with WeeChat;
 
-package body Plugin is
+package body Plugin_Canberra is
 
    --  Play sounds when a message is received, nick name is highlighted, or
    --  when client got (dis)connected to IRC server.
@@ -81,45 +83,45 @@ package body Plugin is
 
    -----------------------------------------------------------------------------
 
-   Reminder_Timer : WeeChat.Timer;
+   use WeeChat;
+
+   Reminder_Timer : Timer;
 
    function Reminder_Repeated_Call_Handler
-     (Data            : WeeChat.Void_Ptr;
-      Remaining_Calls : Integer) return WeeChat.Callback_Result is
+     (Plugin          : Plugin_Ptr;
+      Remaining_Calls : Integer) return Callback_Result is
    begin
       if Is_Highlighted_While_Away then
          Play_Async (Sound_Message_Reminder);
          if Remaining_Calls = 0 then
-            Reminder_Timer := WeeChat.No_Timer;
+            Reminder_Timer := No_Timer;
          end if;
       else
-         WeeChat.Cancel_Timer (Reminder_Timer);
-         Reminder_Timer := WeeChat.No_Timer;
+         Cancel_Timer (Reminder_Timer);
+         Reminder_Timer := No_Timer;
       end if;
-      return WeeChat.OK;
+      return OK;
    end Reminder_Repeated_Call_Handler;
 
    function Reminder_First_Call_Handler
-     (Data            : WeeChat.Void_Ptr;
-      Remaining_Calls : Integer) return WeeChat.Callback_Result is
+     (Plugin          : Plugin_Ptr;
+      Remaining_Calls : Integer) return Callback_Result is
    begin
       if Is_Highlighted_While_Away then
          Play_Async (Sound_Message_Reminder);
 
-         Reminder_Timer := WeeChat.Set_Timer (Retry_Duration, 0, Reminder_Retries,
+         Reminder_Timer := Set_Timer (Plugin, Retry_Duration, 0, Reminder_Retries,
            Reminder_Repeated_Call_Handler'Access);
       else
-         Reminder_Timer := WeeChat.No_Timer;
+         Reminder_Timer := No_Timer;
       end if;
-      return WeeChat.OK;
+      return OK;
    end Reminder_First_Call_Handler;
 
    -----------------------------------------------------------------------------
 
-   use WeeChat;
-
    function On_Key_Press_Signal
-     (Data        : Void_Ptr;
+     (Plugin      : Plugin_Ptr;
       Signal      : String;
       Kind        : Data_Kind;
       Signal_Data : Void_Ptr) return Callback_Result is
@@ -131,7 +133,7 @@ package body Plugin is
    end On_Key_Press_Signal;
 
    function On_IRC_Signal
-     (Data        : Void_Ptr;
+     (Plugin      : Plugin_Ptr;
       Signal      : String;
       Kind        : Data_Kind;
       Signal_Data : Void_Ptr) return Callback_Result is
@@ -146,7 +148,7 @@ package body Plugin is
    end On_IRC_Signal;
 
    function On_IRC_Message_Signal
-     (Data        : Void_Ptr;
+     (Plugin      : Plugin_Ptr;
       Signal      : String;
       Kind        : Data_Kind;
       Signal_Data : Void_Ptr) return Callback_Result
@@ -159,7 +161,7 @@ package body Plugin is
       Server_Name : SU.Unbounded_String renames Signal_Splitted (1);
       Signal_Name : SU.Unbounded_String renames Signal_Splitted (2);
 
-      Nick_Name : constant String := Get_Info ("irc_nick", +Server_Name);
+      Nick_Name : constant String := Get_Info (Plugin, "irc_nick", +Server_Name);
    begin
       if Signal_Name /= "irc_in2_PRIVMSG" or Kind /= String_Type or Signal_Data = Null_Void then
          return Error;
@@ -191,8 +193,8 @@ package body Plugin is
                Is_Highlighted_While_Away := True;
 
                if Seconds (Clock) in Office_Hour_Start .. Office_Hour_End then
-                  WeeChat.Cancel_Timer (Reminder_Timer);
-                  Reminder_Timer := WeeChat.No_Timer;
+                  Cancel_Timer (Reminder_Timer);
+                  Reminder_Timer := No_Timer;
                   Play_Async (Sound_Message_Highlight_Away);
                else
                   declare
@@ -204,12 +206,12 @@ package body Plugin is
                      In_Time : constant Duration := Wake_Up_Date - Current_Time;
                      Sender  : constant String   := Get_Nick (Host => +From_User);
                   begin
-                     if Reminder_Timer = WeeChat.No_Timer then
-                        Reminder_Timer := WeeChat.Set_Timer
-                          (In_Time, 60, 1, Reminder_First_Call_Handler'Access);
+                     if Reminder_Timer = No_Timer then
+                        Reminder_Timer := Set_Timer
+                          (Plugin, In_Time, 60, 1, Reminder_First_Call_Handler'Access);
 
                         Send_Message
-                          (+Server_Name,
+                          (Plugin, +Server_Name,
                            (if Is_Private_Message then Sender else +Channel),
                            (if Is_Private_Message then "" else Sender & ": ") &
                            "I'm currently away since " & Image_Date (Last_Key_Press) &
@@ -227,19 +229,55 @@ package body Plugin is
       return OK;
    end On_IRC_Message_Signal;
 
-   procedure Plugin_Initialize is
+   procedure Plugin_Initialize (Plugin : Plugin_Ptr) is
    begin
-      On_Signal ("key_pressed", On_Key_Press_Signal'Access);
-      On_Signal ("irc_*", On_IRC_Signal'Access);
-      On_Signal ("*,irc_in2_PRIVMSG", On_IRC_Message_Signal'Access);
+      On_Signal (Plugin, "key_pressed", On_Key_Press_Signal'Access);
+      On_Signal (Plugin, "irc_*", On_IRC_Signal'Access);
+      On_Signal (Plugin, "*,irc_in2_PRIVMSG", On_IRC_Message_Signal'Access);
 
       Play_Async (Sound_Server_Connected);
    end Plugin_Initialize;
 
-   procedure Plugin_Finalize is null;
+   procedure Plugin_Finalize (Plugin : Plugin_Ptr) is null;
 
-begin
-   WeeChat.Register
-     ("canberra", "onox", "Canberra sounds with Ada 2012", "1.0", "Apache-2.0",
-      Plugin_Initialize'Access, Plugin_Finalize'Access);
-end Plugin;
+   Plugin_Name : constant C_String := "canberra" & L1.NUL
+     with Export, Convention => C, External_Name => "weechat_plugin_name";
+
+   Plugin_Author : constant C_String := "onox" & L1.NUL
+     with Export, Convention => C, External_Name => "weechat_plugin_author";
+
+   Plugin_Description : constant C_String := "Canberra sounds with Ada 2012" & L1.NUL
+     with Export, Convention => C, External_Name => "weechat_plugin_description";
+
+   Plugin_Version : constant C_String := "1.0" & L1.NUL
+     with Export, Convention  => C, External_Name => "weechat_plugin_version";
+
+   Plugin_License : constant C_String := "Apache-2.0" & L1.NUL
+     with Export, Convention => C, External_Name => "weechat_plugin_license";
+
+   Plugin_API_Version : constant String := WeeChat.Plugin_API_Version
+     with Export, Convention => C, External_Name => "weechat_plugin_api_version";
+
+   function Plugin_Init
+     (Object : Plugin_Ptr;
+      Argc   : Interfaces.C.int;
+      Argv   : System.Address) return Callback_Result
+   with Export, Convention => C, External_Name => "weechat_plugin_init";
+
+   function Plugin_End (Object : Plugin_Ptr) return Callback_Result
+     with Export, Convention => C, External_Name => "weechat_plugin_end";
+
+   function Plugin_Init
+     (Object : Plugin_Ptr;
+      Argc   : Interfaces.C.int;
+      Argv   : System.Address) return Callback_Result is
+   begin
+      return Plugin_Init (Object, Plugin_Initialize'Access);
+   end Plugin_Init;
+
+   function Plugin_End (Object : Plugin_Ptr) return Callback_Result is
+   begin
+      return Plugin_End (Object, Plugin_Finalize'Access);
+   end Plugin_End;
+
+end Plugin_Canberra;
