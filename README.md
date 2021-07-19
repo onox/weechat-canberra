@@ -1,4 +1,6 @@
+[![Build status](https://github.com/onox/weechat-canberra/actions/workflows/build.yaml/badge.svg)](https://github.com/onox/weechat-canberra/actions/workflows/build.yaml)
 [![License](https://img.shields.io/github/license/onox/weechat-canberra.svg?color=blue)](https://github.com/onox/weechat-canberra/blob/master/LICENSE)
+[![Alire crate](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/weechat_canberra.json)](https://alire.ada.dev/crates/weechat_canberra.html)
 [![GitHub release](https://img.shields.io/github/release/onox/weechat-canberra.svg)](https://github.com/onox/weechat-canberra/releases/latest)
 [![IRC](https://img.shields.io/badge/IRC-%23ada%20on%20libera.chat-orange.svg)](https://libera.chat)
 
