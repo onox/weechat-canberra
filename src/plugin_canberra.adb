@@ -193,8 +193,10 @@ package body Plugin_Canberra is
                Is_Highlighted_While_Away := True;
 
                if Seconds (Clock) in Office_Hour_Start .. Office_Hour_End then
-                  Cancel_Timer (Reminder_Timer);
-                  Reminder_Timer := No_Timer;
+                  if Reminder_Timer /= No_Timer then
+                     Cancel_Timer (Reminder_Timer);
+                     Reminder_Timer := No_Timer;
+                  end if;
                   Play_Async (Sound_Message_Highlight_Away);
                else
                   declare
