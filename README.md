@@ -13,19 +13,30 @@ the sound of an incoming phone call if a message is received between
 07:00 and 21:00, otherwise the plug-in tells the sender that you will
 be woken up around 07:00.
 
+Uses the [weechat-ada][url-weechat-ada] and [canberra-ada][url-canberra-ada]
+bindings.
+
 ## Dependencies
 
 In order to build the plug-in, you need to have:
 
  * An Ada 2012 compiler
 
- * GPRBuild and `make`
+ * [Alire][url-alire]
 
- * [weechat-ada][url-weechat-ada]
+ * `make`
+
+ * Linux (because of the dependency on Canberra)
 
 ## Installing dependencies on Ubuntu 18.04 LTS
 
-Build and install [weechat-ada][url-weechat-ada].
+Install the dependencies using apt:
+
+```
+$ sudo apt install gnat-7 gprbuild make
+```
+
+and then install Alire.
 
 ## Installation
 
@@ -39,11 +50,11 @@ $ make
 Install the `gcc` package if you get a message about
 "plugin needed to handle lto object":
 
-```sh
+```
 $ sudo apt install gcc
 ```
 
-You can override CFLAGS if desired. After having compiled the source code,
+After having compiled the source code,
 the plug-in can be installed to `~/.weechat/plugins/` by executing:
 
 ```
@@ -63,7 +74,9 @@ refers to this license:
 
     SPDX-License-Identifier: Apache-2.0
 
+  [url-alire]: https://alire.ada.dev/
   [url-apache]: https://opensource.org/licenses/Apache-2.0
   [url-contributing]: /CONTRIBUTING.md
   [url-weechat]: https://weechat.org/
   [url-weechat-ada]: https://github.com/onox/weechat-ada
+  [url-canberra-ada]: https://github.com/onox/canberra-ada

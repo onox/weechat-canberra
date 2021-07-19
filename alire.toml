@@ -1,0 +1,21 @@
+name = "weechat_canberra"
+description = "A WeeChat plug-in that plays sounds using Canberra"
+version = "2.0.0"
+website = "https://github.com/onox/weechat-canberra"
+licenses = "Apache-2.0"
+tags = ["canberra", "sound", "chat", "irc", "weechat"]
+
+authors = ["onox"]
+maintainers = ["onox <denkpadje@gmail.com>"]
+maintainers-logins = ["onox"]
+
+[available.'case(os)']
+linux = true
+'...' = false
+
+[gpr-set-externals]
+CANBERRA_ADA_LIBRARY_TYPE = "static-pic"
+
+[[depends-on]]
+canberra_ada = "^2.0.0"
+weechat_ada = "^2.0.0"
