@@ -28,17 +28,17 @@ In order to build the plug-in, you need to have:
 
  * `make`
 
- * Linux (because of the dependency on Canberra)
+ * libcanberra with one of the backends
 
 ## Installing dependencies on Ubuntu 18.04 LTS
 
 Install the dependencies using apt:
 
 ```
-$ sudo apt install gnat-7 gprbuild make
+$ sudo apt install gnat-7 gprbuild make libcanberra-dev libcanberra-pulse
 ```
 
-and then install Alire.
+and then install Alire. For the PulseAudio backend you can install `libcanberra-pulse`.
 
 ## Installation
 
