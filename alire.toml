@@ -21,5 +21,5 @@ validation.compile_checks = "warnings"
 CANBERRA_ADA_LIBRARY_TYPE = "static-pic"
 
 [[depends-on]]
-canberra_ada = "^2.0.0"
-weechat_ada = "^2.0.0"
+canberra_ada = "^2.0.1"
+weechat_ada = "^3.0.1"
