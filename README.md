@@ -3,6 +3,7 @@
 [![Alire crate](https://img.shields.io/endpoint?url=https://alire.ada.dev/badges/weechat_canberra.json)](https://alire.ada.dev/crates/weechat_canberra.html)
 [![GitHub release](https://img.shields.io/github/release/onox/weechat-canberra.svg)](https://github.com/onox/weechat-canberra/releases/latest)
 [![IRC](https://img.shields.io/badge/IRC-%23ada%20on%20libera.chat-orange.svg)](https://libera.chat)
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/ada-lang/Lobby)
 
 # weechat-canberra
 
@@ -28,17 +29,9 @@ In order to build the plug-in, you need to have:
 
  * `make`
 
- * libcanberra with one of the backends
+To use libcanberra, you need to have some backend installed:
 
-## Installing dependencies on Ubuntu 18.04 LTS
-
-Install the dependencies using apt:
-
-```
-$ sudo apt install gnat-7 gprbuild make libcanberra-dev libcanberra-pulse
-```
-
-and then install Alire. For the PulseAudio backend you can install `libcanberra-pulse`.
+ * `libcanberra-pulse` for the PulseAudio backend
 
 ## Installation
 
@@ -47,13 +40,6 @@ the source code:
 
 ```
 $ make
-```
-
-Install the `gcc` package if you get a message about
-"plugin needed to handle lto object":
-
-```
-$ sudo apt install gcc
 ```
 
 After having compiled the source code,
